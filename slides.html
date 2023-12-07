@@ -1,0 +1,739 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>start</title>
+  <style type="text/css">
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" type="text/css" media="screen, projection, print"
+    href="https://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css" />
+  <script src="https://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js"
+    charset="utf-8" type="text/javascript"></script>
+</head>
+<body>
+<div id="kubernetes-advanced-workshop" class="slide section level1">
+<h1>Kubernetes Advanced Workshop</h1>
+<h2 id="welcome">Welcome</h2>
+<p>Know topics:</p>
+<ul>
+<li>AuthN and AuthZ</li>
+<li>Network and NetworkPolicy</li>
+<li>Controller Webhooks</li>
+<li>Anyting else (maybe not enough time (sry))</li>
+</ul>
+</div>
+<div id="slides" class="slide section level1">
+<h1>Slides</h1>
+<p>There a slides?</p>
+<ul>
+<li>Not the focus</li>
+<li>Write it together:</li>
+<li><ul>
+<li>https://s.42l.fr/2M3yenoy</li>
+</ul></li>
+<li>Draw together:</li>
+<li><ul>
+<li>https://excalidraw.com</li>
+</ul></li>
+</ul>
+<p>Export the hedgedoc and excalidraw at the end of the day</p>
+</div>
+<div id="k8sworkshop" class="slide section level1">
+<h1>K8sWorkshop</h1>
+<ul>
+<li>Not a basic workshop</li>
+<li>Just to put attention on some topics</li>
+</ul>
+</div>
+<div id="me" class="slide section level1">
+<h1>Me</h1>
+<ul>
+<li>Erkan Yanar</li>
+<li>Dev<em>OPS</em></li>
+<li>Find me on LinkedIn(Xing)</li>
+<li>linsernraum.de (There will be my homepage by 2024)</li>
+</ul>
+</div>
+<div id="you" class="slide section level1">
+<h1>You</h1>
+</div>
+<div id="accessing-the-cluster" class="slide section level1">
+<h1>Accessing the Cluster</h1>
+<ul>
+<li>To attend the workshop you are getting Credentials to access
+jumphost.zwerk.org using SSH.</li>
+<li>Feel free to use VSCode with the remote-ssh Plugin to access
+jumphost.zwerk.org while still running and working with your graphical
+Editor</li>
+<li>If not you are going to use Vim oder Mcedit on the jumphost.</li>
+<li>I strongly recommend using tmux</li>
+</ul>
+</div>
+<div id="gitrepository" class="slide section level1">
+<h1>Gitrepository</h1>
+<p>All the examples are in a gitrepository so:</p>
+<pre><code>git clone https://github.com/erkules/k8sworkshop.git
+cd k8sworkshop</code></pre>
+<p>From now on alle commands are expected to be executed from the
+<code>k8sworkshop</code> directory</p>
+</div>
+<div id="authentication-and-authorization-rbac"
+class="slide section level1">
+<h1>Authentication and Authorization (RBAC)</h1>
+<h2 id="agenda">Agenda</h2>
+<ul>
+<li>Overview Authentication</li>
+<li><ul>
+<li>Certs</li>
+</ul></li>
+<li><ul>
+<li>Oauth2/JWT</li>
+</ul></li>
+<li>Nittygritty of Authorization aka RoleBasedAccessControl (RBAC)</li>
+</ul>
+<!-- Wir sehen RBAC bei Webhooks und Controllern wieder) -->
+</div>
+<div id="authentication" class="slide section level1">
+<h1>Authentication</h1>
+<ul>
+<li>There will be nearly no exercises</li>
+<li>It is about to find out who you/we are</li>
+<li><ul>
+<li>User</li>
+</ul></li>
+<li><ul>
+<li>Group</li>
+</ul></li>
+<li><ul>
+<li>ServiceAccount</li>
+</ul></li>
+</ul>
+</div>
+<div id="authentication-methods" class="slide section level1">
+<h1>Authentication Methods</h1>
+<p>There are some ways to authenticate against Kubernetes</p>
+<p>As a user you are most likely facing</p>
+<ul>
+<li>x509 Certificates</li>
+<li>OpenID Connect Tokens (or any JWT)</li>
+</ul>
+</div>
+<div id="x509-certificats" class="slide section level1">
+<h1>x509 Certificats</h1>
+<ul>
+<li>You access the k8s cluster using <code>~/.kube/config</code> (on
+your Jumpserver)</li>
+<li>There is a cert</li>
+</ul>
+<p>Gonna get it</p>
+<pre><code>yq -r  &#39;.users[0].user.&quot;client-certificate-data&quot;&#39;   ~/.kube/config | base64 -d &gt;/tmp/auth.crt
+openssl x509  -text -noout -in /tmp/auth.crt</code></pre>
+<p>Check for the Subject</p>
+<ul>
+<li>O ==&gt; Group</li>
+<li>CN ==&gt; User</li>
+</ul>
+<p>Let’s draw a picture why that cert-stuff works</p>
+</div>
+<div id="oidcoauth2" class="slide section level1">
+<h1>OIDC/Oauth2</h1>
+<ul>
+<li>Most likely you are going to authenticate against an
+oauth-Provider</li>
+<li>The provider maybe is just a proxy to your AD (but 🤷)</li>
+</ul>
+</div>
+<div id="authorization" class="slide section level1">
+<h1>Authorization</h1>
+<ul>
+<li>So after being authenticated</li>
+<li>What are we allowed to do?</li>
+</ul>
+</div>
+<div id="rbac" class="slide section level1">
+<h1>RBAC</h1>
+<ul>
+<li>Role Based Access Control</li>
+<li>Let’s make it more complicated</li>
+</ul>
+</div>
+<div id="plan" class="slide section level1">
+<h1>Plan</h1>
+<ul>
+<li>using curl to traverse the API</li>
+<li>Have a look into (Cluster)Roles</li>
+<li>Check (Cluster)RoleBinding</li>
+<li>Do some simple stuff</li>
+</ul>
+</div>
+<div id="using-curl-to-traverse-the-api" class="slide section level1">
+<h1>using curl to traverse the API</h1>
+<p>Pic about etcd</p>
+<pre><code>kubectl proxy</code></pre>
+<p>Then do ./RBAC/1x1/README.md</p>
+</div>
+<div id="interim-conclusion" class="slide section level1">
+<h1>interim conclusion</h1>
+<p>So it is about to access</p>
+<ul>
+<li>cluster-scoped objects</li>
+<li>namespaced objects</li>
+<li>non-resource endpoints exists, but we don’t care</li>
+</ul>
+<p>Where access means:</p>
+<p>Check for the verbs:</p>
+<pre><code>curl localhost:8001/api/v1</code></pre>
+<p>verbs:</p>
+<table>
+<tbody>
+<tr class="odd">
+<td>get</td>
+<td>list</td>
+<td>listcollection</td>
+</tr>
+<tr class="even">
+<td>patch</td>
+<td>update</td>
+<td>watch</td>
+</tr>
+<tr class="odd">
+<td>delete</td>
+<td>deletecollection</td>
+<td>create</td>
+</tr>
+</tbody>
+</table>
+<p>…</p>
+</div>
+<div id="have-a-look-into-clusterroles" class="slide section level1">
+<h1>Have a look into (Cluster)Roles</h1>
+<ul>
+<li>admin</li>
+<li>cluster-admin</li>
+<li>view</li>
+<li>system:coredns</li>
+</ul>
+</div>
+<div id="check-clusterrolebinding" class="slide section level1">
+<h1>Check (Cluster)RoleBinding</h1>
+<p>Basic idea bind (Cluster)Roles to identities/subjects</p>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>subjects</th>
+<th>How to impersonate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>User</td>
+<td>kubectl get pods –as –as-group team1</td>
+</tr>
+<tr class="even">
+<td>Group</td>
+<td>kubectl get pods –as username</td>
+</tr>
+<tr class="odd">
+<td>Serviceaccount</td>
+<td>kubectl get pods –as system:servcieaccount:testing:test</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="do-some-simple-stuff" class="slide section level1">
+<h1>Do some simple stuff</h1>
+<p>Please have a look before you deploy it</p>
+<pre><code>kubectl apply -f RBAC/hallo-ns-sa-rb.yaml</code></pre>
+<p>Question:</p>
+<p>But that was a ClusterRole. Is the User <code>hallo</code> now a
+super-user? 😱</p>
+</div>
+<div id="its-so-complicated" class="slide section level1">
+<h1>It’s so complicated</h1>
+<ul>
+<li>RBAC is no fun at all</li>
+<li>Let’s see some tips</li>
+</ul>
+<pre><code>kubectl auth whoami</code></pre>
+</div>
+<div id="check-permissions" class="slide section level1">
+<h1>Check Permissions</h1>
+<pre><code>kubectl auth can-i get pods haha
+kubectl auth can-i --as aishe list pods
+kubectl auth can-i list svc --as system:serviceaccount:kube-system:coredns</code></pre>
+</div>
+<div id="krew-..-rbac-view" class="slide section level1">
+<h1>Krew ./. rbac-view</h1>
+<ul>
+<li>Nice WebUI to see (Cluster)Roles</li>
+<li>Not “working” on the jumphost</li>
+<li>Because it binds to localhost</li>
+</ul>
+<pre><code>kubectl krew install  rbac-view
+kubectl rbac-view</code></pre>
+</div>
+<div id="krew-..-rbac-lookup" class="slide section level1">
+<h1>Krew ./. rbac-lookup</h1>
+<p>Easy way to find (Cluster)Roles (and the bindings)</p>
+<pre><code>kubectl krew install  rbac-lookup
+kubectl rbac-lookup --kind serviceaccount kamaji-controller-manager -o wide
+kubectl rbac-lookup --kind user  bob -o wide</code></pre>
+</div>
+<div id="network" class="slide section level1">
+<h1>Network</h1>
+<ul>
+<li>Overview</li>
+<li>BuildIn noderouting (but s/topologyKeys/internalTrafficPolicy/)</li>
+<li>NetworkPolicies</li>
+</ul>
+</div>
+<div id="overview" class="slide section level1">
+<h1>Overview</h1>
+<ul>
+<li>One Network for all Pods</li>
+<li>Nothing special about Namespaces (Namespaces are just directories to
+organize objects (emember))</li>
+</ul>
+</div>
+<div id="topologyawarness-of-services-aka-servicediscovery"
+class="slide section level1">
+<h1>Topologyawarness of Services aka ServiceDiscovery</h1>
+<ul>
+<li>topologyKeys are deprecated :/</li>
+<li>There is a (non) replacement</li>
+<li>Let’s meet internalTrafficPolicy</li>
+</ul>
+<p>Window 1:</p>
+<pre><code>watch kubectl get svc,pods -o wide</code></pre>
+<p>Window 2:</p>
+<pre><code>kubectl apply -f Deployments/deployment-local-svc.yaml
+kubectl exec -ti jumper -- sh
+&gt; apk add curl
+&gt; watch curl -s  http://wahnsinn</code></pre>
+<p>Repeat the curl-command and make sure you always connect to a
+node-local Pod</p>
+</div>
+<div id="thats-all" class="slide section level1">
+<h1>That’s all</h1>
+<ul>
+<li>There is <a
+href="https://kubernetes.io/docs/concepts/services-networking/topology-aware-routing/">Topology
+Aware Routing</a></li>
+<li>There was topologyKeys for Services but they are deprecated</li>
+</ul>
+</div>
+<div id="networkpolicies" class="slide section level1">
+<h1>Networkpolicies</h1>
+<p>What you need to understand:</p>
+<ul>
+<li>A namespaced object (why is that important?)</li>
+<li>Working with labels (like Service Discovery)</li>
+</ul>
+<p>Draw it or it didn’t happen</p>
+<p>Questions:</p>
+<ul>
+<li>What does it means only to have namespaced Networkpolicies?</li>
+</ul>
+</div>
+<div id="what-do-the-networkpolicies-look-like"
+class="slide section level1">
+<h1>What do the NetworkPolicies look like?</h1>
+<pre><code>apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tored
+  namespace: netz
+spec:
+  podSelector:
+    matchLabels:
+      farbe: rot
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          farbe: blau
+    ports: 
+    - port: 80</code></pre>
+</div>
+<div id="an-exampleexercise" class="slide section level1">
+<h1>An example/exercise</h1>
+<p>Deploy a Namespace (named netz) with three Deployments (with unique
+Labels) and their fitting services</p>
+<pre><code>kubectl apply -f Networkpolicies/basics.yaml
+kubectl -n netz get deploy,svc,pod -o wide --show-labels </code></pre>
+<p>Please:</p>
+<ul>
+<li><code>Exec</code> into every Pod pod install curl
+<code>apk add curl</code> and connect to every service</li>
+<li>Apply a NetworkPolicy</li>
+</ul>
+<pre><code>kubectl -n netz apply -f NetworkPolicies/pod2pod.yaml</code></pre>
+<ul>
+<li>Now only the Pods from the blau Deployment should be able to access
+the Pod from the rot Deployment</li>
+<li>It doesn’t matter if we use the svc or the IP of any Pod (labeled
+farbe=rot)</li>
+</ul>
+</div>
+<div id="benefits" class="slide section level1">
+<h1>Benefits</h1>
+<ul>
+<li>Think about shipping your Application with the right
+NetworkPolicies</li>
+<li>Think about defining default Networkpolicies for your Namespaces
+(let’s show them)</li>
+</ul>
+</div>
+<div id="some-examples" class="slide section level1">
+<h1>Some Examples</h1>
+<p>Recap:</p>
+<pre><code>kind: NetworkPolicy
+spec:
+  podSelector:     &lt;&lt;-- Find the Pods in the Namepace
+    hallo: welt    &lt;&lt;-- using this Label
+  ... 
+  policyTypes:      #     Could be both or only one:
+  - Ingress        &lt;&lt;--   Define Incomming Traffic
+  - Egress         &lt;&lt;--   Define Outgoing Traffic
+  egress: []       &lt;&lt;--[] Configuration-Array
+  ingress:         &lt;&lt;--[] Configuration-Array
+  - from:
+    - podSelector:
+        matchLabels:
+          app: www</code></pre>
+</div>
+<div id="lets-discuss" class="slide section level1">
+<h1>Let’s Discuss</h1>
+<ul>
+<li>Wildcards</li>
+<li>Empty Arrays</li>
+<li>Egress</li>
+</ul>
+</div>
+<div id="tools-to-debug-network" class="slide section level1">
+<h1>Tools to debug Network</h1>
+<p>Some nice tools to “debug” Network using <code>kubectl</code></p>
+</div>
+<div id="ephemeral-container" class="slide section level1">
+<h1>“ephemeral Container”</h1>
+<p>What are ephemeral containers?</p>
+<pre><code>kubectl debug -ti --image=tollesimage &lt;PODName&gt;</code></pre>
+<p>And yes not only good for network debugging</p>
+</div>
+<div id="links" class="slide section level1">
+<h1>Links</h1>
+<ul>
+<li><a
+href="https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/01-deny-all-traffic-to-an-application.md">Gifs
+to understand NetworkPolicies</a></li>
+<li><a href="https://editor.cilium.io">quasiEditor</a></li>
+<li><a href="https://orca.tufin.io/netpol/">Auch quasiEditor</a></li>
+<li><a href="https://www.inspektor-gadget.io/">Inspector-Gadget</a></li>
+<li><a href="https://k8spacket.github.io">k8spacket</a> # <a
+href="https://github.com/runoncloud/kubectl-np-viewer">np-viewer</a></li>
+</ul>
+</div>
+<div id="kubectl-plugins" class="slide section level1">
+<h1>Kubectl Plugins</h1>
+<pre><code>kubectl krew install np-viewer</code></pre>
+<ul>
+<li>Simple overview</li>
+</ul>
+<pre><code>$ kubectl np-viewer -n netz -p rot-5bb7cb48cb-5sj5t
+
++----------------+---------+-----------+-----------+---------------------+---------------+----------+--------+
+| NETWORK POLICY |  TYPE   | NAMESPACE |   PODS    | NAMESPACES SELECTOR | PODS SELECTOR | IP BLOCK | PORTS  |
++----------------+---------+-----------+-----------+---------------------+---------------+----------+--------+
+|     tored      | Ingress |   netz    | farbe=rot |        netz         |  farbe=blau   |    *     | TCP:80 |
++----------------+---------+-----------+-----------+---------------------+---------------+----------+--------+</code></pre>
+<p>Nice start but only evaluates podSelector <code>:/</code></p>
+<pre><code>$ kubectl np-viewer -n netz -p blau-54d9867779-82f4k
+
+No network policy was found</code></pre>
+</div>
+<div id="inspector-gadget" class="slide section level1">
+<h1><a href="https://www.inspektor-gadget.io/">Inspector-Gadget</a></h1>
+<p>You should have the <a href="https://krew.sigs.k8s.io/">krew plugin
+manager</a> installed</p>
+<pre><code>kubectl krew install gadget
+kubectl gadget deploy</code></pre>
+<p>Trace syscalls:</p>
+<pre><code>kubectl gadget trace exec -n namespace -p podname </code></pre>
+<p>Trace tcp-connections:</p>
+<pre><code>kubectl gadget trace tcp -n nameaspace -p podname -c containername</code></pre>
+</div>
+<div id="network-visualisation" class="slide section level1">
+<h1>Network visualisation</h1>
+<p>I.e. <a
+href="https://github.com/k8spacket/k8spacket">k8spacket</a></p>
+</div>
+<div id="skipping" class="slide section level1">
+<h1>Skipping</h1>
+<p>I.e. Calico and Cilium offer additional</p>
+</div>
+<div id="webhooks-and-operators" class="slide section level1">
+<h1>Webhooks and Operators</h1>
+<p>Picture and Idea</p>
+</div>
+<div id="webhooksadmissioncontroller" class="slide section level1">
+<h1>Webhooks/[Admission]Controller</h1>
+<p>Let’s get started with them</p>
+</div>
+<div id="known-admissioncontroller" class="slide section level1">
+<h1>Known <a
+href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">AdmissionController</a></h1>
+<ul>
+<li>LimitRanger</li>
+<li>RessourceQuota</li>
+<li>NamespaceLifecycle</li>
+<li>Priority</li>
+<li>MutatingAdmissionWebhook</li>
+<li>ValidatingAdmissionWebhook</li>
+<li>ImagePolicyWebhook</li>
+<li>AllwaysPullImages</li>
+<li>….</li>
+</ul>
+<pre><code>PIC of ControllerPipeline</code></pre>
+</div>
+<div id="section" class="slide section level1">
+<h1></h1>
+<ul>
+<li>Security</li>
+<li>Governance</li>
+<li>..</li>
+</ul>
+</div>
+<div id="webhooks-easy-to-extend" class="slide section level1">
+<h1>Webhooks easy to extend</h1>
+<ul>
+<li><a
+href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#imagepolicywebhook">ImagePolicyWebhook</a></li>
+<li>MutatingWebhook</li>
+<li><ul>
+<li>Changes the object</li>
+</ul></li>
+<li>ValidatingAdmissionWebhook</li>
+<li><ul>
+<li>Just returns yes/no</li>
+</ul></li>
+<li><ul>
+<li>easy 💃</li>
+</ul></li>
+</ul>
+</div>
+<div id="webhook-registration" class="slide section level1">
+<h1>Webhook Registration</h1>
+<ul>
+<li><code>validationWebhookConfiguration</code> tells K8s a kind of
+Workload should be sent to a specific Servcie</li>
+<li>This is the difference to an Operator. The Controller gets the
+traffic and can manipulate/stop the object before it hits etcd and even
+can be consumed bei an Operator</li>
+</ul>
+<p>Behind the Service is a Webserver giving following answer:
+(<code>Content-Type: application/json</code>)</p>
+<pre><code>{ &quot;apiVersion&quot;: &quot;admission.k8s.io/v1&quot;,
+  &quot;kind&quot;: &quot;AdmissionReview&quot;,
+  &quot;response&quot;: {
+    &quot;uid&quot;: &quot;&lt;value from request.uid&gt;&quot;,
+    &quot;allowed&quot;: false/true
+    &quot;status&quot;: {
+    &quot;code&quot;    : 403
+    &quot;message&quot; : &quot;imho you suck&quot;
+} } }</code></pre>
+</div>
+<div id="everything-prepared" class="slide section level1">
+<h1>Everything prepared</h1>
+<p>(Controller/webhookregistration.yaml)</p>
+<pre><code>apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: &quot;webhook-check-example&quot;
+webhooks:
+- name: &quot;webhook-check-example.linsenraum.de&quot;
+  failurePolicy: Fail
+  rules:
+  - apiGroups:   [&quot;&quot;]
+    apiVersions: [&quot;v1&quot;]
+    operations:  [&quot;DELETE&quot;]
+    resources:   [&quot;pods&quot;]
+    scope:       &quot;Namespaced&quot;
+  clientConfig:
+    service:
+      namespace: &quot;webhook&quot;
+      name: &quot;check&quot;
+    caBundle:</code></pre>
+</div>
+<div id="lets-register-nothing" class="slide section level1">
+<h1>Let’s register (nothing)</h1>
+<pre><code>kubectl apply -f webhookregistration.yaml
+kubectl create ns loeschen
+kubectl label ns loeschen k8scamp=spielen</code></pre>
+</div>
+<div id="failurepolicy" class="slide section level1">
+<h1>failurePolicy</h1>
+<pre><code>kubectl -n loeschen apply -f Pods/pod.yaml
+kubectl -n loeschen delete -f Pods/pod.yaml</code></pre>
+<p>In webhookregistration.yaml =&gt;
+<code>failurePolicy: Ignore</code></p>
+<p>and ~~~ kubectl apply -f webhookregistration.yaml ~~~</p>
+<p>Now let’s delete the Pod again:</p>
+<pre><code>kubectl -n loeschen delete -f Pods/pod.yaml</code></pre>
+</div>
+<div id="but-lett-deploy-a-servic" class="slide section level1">
+<h1>But let’t deploy a servic</h1>
+<p>This is an AdmissionReview:</p>
+<pre><code>{
+  &quot;apiVersion&quot;: &quot;admission.k8s.io/v1&quot;,
+  &quot;kind&quot;: &quot;AdmissionReview&quot;,
+  &quot;request&quot;: {
+    # Diese uid brauche wir so oder so :/
+    &quot;uid&quot;: &quot;705ab4f5-6393-11e8-b7cc-42010a800002&quot;,
+  ..
+  &quot;name&quot;: &quot;my-deployment&quot;
+  &quot;namespace&quot;: &quot;my-namespace&quot;,
+  ..
+...</code></pre>
+</div>
+<div id="this-is-what-we-need-our-service-to-do"
+class="slide section level1">
+<h1>This is what we need our “Service” to do</h1>
+<ul>
+<li>Status: 200 HTTP</li>
+<li>Content-Type: application/json</li>
+</ul>
+<pre><code>{
+  &quot;apiVersion&quot;: &quot;admission.k8s.io/v1&quot;,
+  &quot;kind&quot;: &quot;AdmissionReview&quot;,
+  &quot;response&quot;: {
+    &quot;uid&quot;: &quot;&lt;value from request.uid&gt;&quot;,
+    &quot;allowed&quot;: true/false
+  }
+}</code></pre>
+</div>
+<div id="webhook" class="slide section level1">
+<h1>Webhook</h1>
+<pre><code>kubectl apply -f webhook-deployment.yaml</code></pre>
+<p>Pod-dance again:</p>
+<pre><code>kubectl -n loeschen apply -f Pods/pod.yaml
+kubectl -n loeschen delete -f Pods/pod.yaml</code></pre>
+</div>
+<div id="mutatingadmissionwebhook" class="slide section level1">
+<h1>MutatingAdmissionWebhook</h1>
+<ul>
+<li>Info only</li>
+<li>We return a patch</li>
+</ul>
+<pre><code>{ &quot;apiVersion&quot;: &quot;admission.k8s.io/v1&quot;,
+  &quot;kind&quot;: &quot;AdmissionReview&quot;,
+  &quot;response&quot;: {
+    &quot;uid&quot;: &quot;&lt;value from request.uid&gt;&quot;,
+    &quot;allowed&quot;: true,
+    &quot;patchType&quot;: &quot;JSONPatch&quot;,
+    &quot;patch&quot;: &quot;base64-encoded patch&quot;
+ } }</code></pre>
+</div>
+<div id="operators" class="slide section level1">
+<h1>Operators</h1>
+<p>What’s the difference?</p>
+<p>Picture</p>
+</div>
+<div id="links-1" class="slide section level1">
+<h1>Links</h1>
+<ul>
+<li><a href="https://operatorframework.io/">OperatorFramework</a></li>
+<li><a
+href="https://github.com/kubernetes-sigs/kubebuilder">Kubebuilder</a></li>
+<li><a href="https://operatorhub.io/">OperatorHub</a> &lt;– 🤷</li>
+</ul>
+</div>
+<div id="agenda-1" class="slide section level1">
+<h1>Agenda</h1>
+<ul>
+<li>Create a CRD</li>
+<li>Use that CRD</li>
+<li>Ignore that CRD</li>
+<li>Impersonate an operator using kubectl</li>
+<li>Deploy a simple pseudo operator-script</li>
+<li>Explain the things</li>
+</ul>
+</div>
+<div id="directory" class="slide section level1">
+<h1>Directory</h1>
+<pre><code>./OperatorCRD</code></pre>
+</div>
+<div id="extend-k8s-with-crds" class="slide section level1">
+<h1>Extend K8s with CRDs</h1>
+<pre><code>kubectl api-resources | grep linsenraum
+kubectl apply -f meineEigeneCRD.yaml
+kubectl api-resources | grep linsenraum
+kubectl explain --recursive erkan</code></pre>
+<pre><code>kubectl apply -f erkan.yaml
+kubectl get er</code></pre>
+</div>
+<div id="section-1" class="slide section level1">
+<h1></h1>
+<ul>
+<li>We ignore CRDs from now</li>
+<li>But that’s <em>the</em> selling point</li>
+</ul>
+</div>
+<div id="operator" class="slide section level1">
+<h1>Operator?</h1>
+<ul>
+<li>Just some Code running <em>with</em> the Cluster</li>
+<li>Most of the time in the Cluster</li>
+</ul>
+<p>Control Loop</p>
+<ul>
+<li>Maybe the most important part of an Operator [SHOULD]</li>
+<li>Here is the idea of converging K8s</li>
+</ul>
+<pre><code>                    +--- reconsile ----+
+start  -&gt; watch --&gt; |  diff   --&gt;  act |
+            ^\      +---------------|--+
+              \---------------------|</code></pre>
+</div>
+<div id="simple-example" class="slide section level1">
+<h1>Simple Example</h1>
+<pre><code>kubectl apply -f OperatorCRD/kubecl-operator-interactive.yaml  
+kubectl exec -ti kubectl -- sh </code></pre>
+<p>Explain also ServiceAccount etc.</p>
+</div>
+<div id="also-simple-example" class="slide section level1">
+<h1>Also Simple Example</h1>
+<p>Have a look into:</p>
+<pre><code>myoperator.yaml</code></pre>
+</div>
+<div id="verstanden" class="slide section level1">
+<h1>Verstanden?</h1>
+<pre><code>kubectl apply -f myoperator.yaml</code></pre>
+<ul>
+<li>Attention: script needs to be started manually</li>
+<li>Check for AdmissionReview</li>
+</ul>
+</div>
+<div id="examples" class="slide section level1">
+<h1>Examples</h1>
+<p>Directory: ./Operators/Percona</p>
+<p>Check the README.md for installing the PerconaOperator</p>
+</div>
+</body>
+</html>

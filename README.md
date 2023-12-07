@@ -1,11 +1,11 @@
 # Welcome
 
-[start](./start.md)
-[hello](./hello.md)
-[access](./access.md)
-[rbac](./rbac.md)
-[network](./network.md)
-[operator](./operator.md)
+* [start](./start.md)
+* [hello](./hello.md)
+* [access](./access.md)
+* [rbac](./rbac.md)
+* [network](./network.md)
+* [operator](./operator.md)
 
 # Slides
 
