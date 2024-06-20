@@ -176,7 +176,7 @@ And yes not only good for network debugging
 * [quasiEditor](https://editor.cilium.io)
 * [Auch quasiEditor](https://orca.tufin.io/netpol/)
 * [Inspector-Gadget](https://www.inspektor-gadget.io/)
-* [k8spacket](https://k8spacket.github.io)
+* [k8spacket](https://github.com/k8spacket/k8spacket)
 # [np-viewer](https://github.com/runoncloud/kubectl-np-viewer)
 
 # Kubectl Plugins
