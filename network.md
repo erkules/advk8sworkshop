@@ -80,7 +80,7 @@ spec:
 Deploy a Namespace (named netz) with three Deployments (with unique Labels) and their fitting services
 
 ~~~
-kubectl apply -f Networkpolicies/basics.yaml
+kubectl apply -f NetworkPolicies/basics.yaml
 kubectl -n netz get deploy,svc,pod -o wide --show-labels 
 ~~~
 
