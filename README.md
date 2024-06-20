@@ -9,5 +9,5 @@
 
 # Slides
 
-pandoc  -t slidy  -s start.md hello.md access.md rbac.md network.md operator.md -o slides.html
+pandoc  -t slidy  --css stylesheet.css -s start.md hello.md access.md rbac.md network.md operator.md -o slides.html
 

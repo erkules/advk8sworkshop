@@ -2,22 +2,25 @@
 
 ## Welcome
 
-Know topics:
+# Topics:
 
-* AuthN and AuthZ
+* (AuthN and) AuthZ
 * Network and NetworkPolicy
-* Controller Webhooks
-* Anyting else (maybe not enough time (sry))
+* Controller and Webhooks
+* ...
 
 
 # Slides
 
-There a slides? 
+Are there slides? 
 
 * Not the focus
 * Write it together:
-* * https://s.42l.fr/2M3yenoy
-* Draw together:
-* * https://excalidraw.com
-
+* https://zwerk.org/hedgedoc/away
 Export the hedgedoc and excalidraw at the end of the day
+
+
+
+<!--
+* * https://s.42l.fr/2M3yenoy
+-->

@@ -1,0 +1,38 @@
+a {color:#000000;}         /* Unvisited link  */
+a:visited {color:#000000;} /* Visited link    */
+a:hover {color:#000000}   /* Mouse over link */
+a:active {color:#000000;}  /* Selected link   */
+
+a.current {color:#FF0000; background-color:#F0F0F0; font-size-adjust: 0.98;} /* Current link */
+div > code { font-family: Consolas,"courier new";  background-color: #f1f1f1; padding: 2px; font-size: 100%; border: 0px solid black; }
+div > p > code { font-family: Consolas,"courier new";  background-color: #f1f1f1; padding: 2px; font-size: 100%; border: 0px solid black; }
+div > ul > li > code { font-family: Consolas,"courier jew";  background-color: #f1f1f1; padding: 2px; font-size: 100%; border: 0px solid black; }
+body {
+     font-size: clamp(1em, 2.8vw, 1.75em);
+   }
+
+/* Table with borders */
+table {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 24px;
+    border-spacing: 0;
+    border-bottom: 2px solid black;
+    border-top: 2px solid black;
+}
+table th {
+    padding: 3px 10px;
+    background-color: white;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid black;
+}
+table td {
+    padding: 3px 10px;
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    border-bottom: 1px solid black;
+}
+

@@ -103,7 +103,7 @@ webhooks:
 
 
 ~~~
-kubectl apply -f webhookregistration.yaml
+kubectl apply -f Controller/webhookregistration.yaml
 kubectl create ns loeschen
 kubectl label ns loeschen k8scamp=spielen
 ~~~
@@ -120,7 +120,7 @@ In webhookregistration.yaml =>  `failurePolicy: Ignore`
 
 and
 ~~~
-kubectl apply -f webhookregistration.yaml
+kubectl apply -f Controller/webhookregistration.yaml
 ~~~
 
 Now let's delete the Pod again:
@@ -129,6 +129,11 @@ Now let's delete the Pod again:
 kubectl -n loeschen delete -f Pods/pod.yaml
 ~~~
 
+Set revert the settings again:
+
+~~~
+failurePolicy: Fail
+~~~
 
 # But let't deploy a servic
 
@@ -168,7 +173,7 @@ This is an  AdmissionReview:
 # Webhook
 
 ~~~
-kubectl apply -f webhook-deployment.yaml
+kubectl apply -f Controller/webhook-deployment.yaml
 ~~~
 
 Pod-dance again:

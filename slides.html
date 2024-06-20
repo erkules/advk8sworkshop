@@ -18,6 +18,8 @@
   </style>
   <link rel="stylesheet" type="text/css" media="screen, projection, print"
     href="https://www.w3.org/Talks/Tools/Slidy2/styles/slidy.css" />
+  <link rel="stylesheet" type="text/css" media="screen, projection, print"
+   href="stylesheet.css" />
   <script src="https://www.w3.org/Talks/Tools/Slidy2/scripts/slidy.js"
     charset="utf-8" type="text/javascript"></script>
 </head>
@@ -25,35 +27,34 @@
 <div id="kubernetes-advanced-workshop" class="slide section level1">
 <h1>Kubernetes Advanced Workshop</h1>
 <h2 id="welcome">Welcome</h2>
-<p>Know topics:</p>
+</div>
+<div id="topics" class="slide section level1">
+<h1>Topics:</h1>
 <ul>
-<li>AuthN and AuthZ</li>
+<li>(AuthN and) AuthZ</li>
 <li>Network and NetworkPolicy</li>
-<li>Controller Webhooks</li>
-<li>Anyting else (maybe not enough time (sry))</li>
+<li>Controller and Webhooks</li>
+<li>…</li>
 </ul>
 </div>
 <div id="slides" class="slide section level1">
 <h1>Slides</h1>
-<p>There a slides?</p>
+<p>Are there slides?</p>
 <ul>
 <li>Not the focus</li>
 <li>Write it together:</li>
-<li><ul>
-<li>https://s.42l.fr/2M3yenoy</li>
-</ul></li>
-<li>Draw together:</li>
-<li><ul>
-<li>https://excalidraw.com</li>
-</ul></li>
+<li>https://zwerk.org/hedgedoc/away Export the hedgedoc and excalidraw
+at the end of the day</li>
 </ul>
-<p>Export the hedgedoc and excalidraw at the end of the day</p>
+<!--
+* * https://s.42l.fr/2M3yenoy
+-->
 </div>
 <div id="k8sworkshop" class="slide section level1">
 <h1>K8sWorkshop</h1>
 <ul>
 <li>Not a basic workshop</li>
-<li>Just to put attention on some topics</li>
+<li>Still just to put attention on some topics</li>
 </ul>
 </div>
 <div id="me" class="slide section level1">
@@ -71,13 +72,14 @@
 <div id="accessing-the-cluster" class="slide section level1">
 <h1>Accessing the Cluster</h1>
 <ul>
-<li>To attend the workshop you are getting Credentials to access
-jumphost.zwerk.org using SSH.</li>
-<li>Feel free to use VSCode with the remote-ssh Plugin to access
-jumphost.zwerk.org while still running and working with your graphical
-Editor</li>
-<li>If not you are going to use Vim oder Mcedit on the jumphost.</li>
-<li>I strongly recommend using tmux</li>
+<li>Check the Hedgedoc</li>
+<li>Accessmethods</li>
+<li><ul>
+<li>Via ssh</li>
+</ul></li>
+<li><ul>
+<li>VSCode using the remote-ssh extension</li>
+</ul></li>
 </ul>
 </div>
 <div id="gitrepository" class="slide section level1">
@@ -88,211 +90,402 @@ cd k8sworkshop</code></pre>
 <p>From now on alle commands are expected to be executed from the
 <code>k8sworkshop</code> directory</p>
 </div>
-<div id="authentication-and-authorization-rbac"
-class="slide section level1">
-<h1>Authentication and Authorization (RBAC)</h1>
-<h2 id="agenda">Agenda</h2>
-<ul>
-<li>Overview Authentication</li>
-<li><ul>
-<li>Certs</li>
-</ul></li>
-<li><ul>
-<li>Oauth2/JWT</li>
-</ul></li>
-<li>Nittygritty of Authorization aka RoleBasedAccessControl (RBAC)</li>
-</ul>
-<!-- Wir sehen RBAC bei Webhooks und Controllern wieder) -->
-</div>
-<div id="authentication" class="slide section level1">
-<h1>Authentication</h1>
-<ul>
-<li>There will be nearly no exercises</li>
-<li>It is about to find out who you/we are</li>
-<li><ul>
-<li>User</li>
-</ul></li>
-<li><ul>
-<li>Group</li>
-</ul></li>
-<li><ul>
-<li>ServiceAccount</li>
-</ul></li>
-</ul>
-</div>
-<div id="authentication-methods" class="slide section level1">
-<h1>Authentication Methods</h1>
-<p>There are some ways to authenticate against Kubernetes</p>
-<p>As a user you are most likely facing</p>
-<ul>
-<li>x509 Certificates</li>
-<li>OpenID Connect Tokens (or any JWT)</li>
-</ul>
-</div>
-<div id="x509-certificats" class="slide section level1">
-<h1>x509 Certificats</h1>
-<ul>
-<li>You access the k8s cluster using <code>~/.kube/config</code> (on
-your Jumpserver)</li>
-<li>There is a cert</li>
-</ul>
-<p>Gonna get it</p>
-<pre><code>yq -r  &#39;.users[0].user.&quot;client-certificate-data&quot;&#39;   ~/.kube/config | base64 -d &gt;/tmp/auth.crt
-openssl x509  -text -noout -in /tmp/auth.crt</code></pre>
-<p>Check for the Subject</p>
-<ul>
-<li>O ==&gt; Group</li>
-<li>CN ==&gt; User</li>
-</ul>
-<p>Let’s draw a picture why that cert-stuff works</p>
-</div>
-<div id="oidcoauth2" class="slide section level1">
-<h1>OIDC/Oauth2</h1>
-<ul>
-<li>Most likely you are going to authenticate against an
-oauth-Provider</li>
-<li>The provider maybe is just a proxy to your AD (but 🤷)</li>
-</ul>
-</div>
-<div id="authorization" class="slide section level1">
-<h1>Authorization</h1>
-<ul>
-<li>So after being authenticated</li>
-<li>What are we allowed to do?</li>
-</ul>
-</div>
 <div id="rbac" class="slide section level1">
 <h1>RBAC</h1>
-<ul>
-<li>Role Based Access Control</li>
-<li>Let’s make it more complicated</li>
-</ul>
+<p>Role Based Access Control</p>
 </div>
-<div id="plan" class="slide section level1">
-<h1>Plan</h1>
+<div id="what-is-it-all-about" class="slide section level1">
+<h1>What is it all about</h1>
 <ul>
-<li>using curl to traverse the API</li>
-<li>Have a look into (Cluster)Roles</li>
-<li>Check (Cluster)RoleBinding</li>
-<li>Do some simple stuff</li>
+<li>Please remember it is about objects in etcd (database)</li>
+<li>We use <code>verbs</code> to describe the interaction with a
+specific object</li>
+<li>Objects like Pods, Services etc.</li>
 </ul>
-</div>
-<div id="using-curl-to-traverse-the-api" class="slide section level1">
-<h1>using curl to traverse the API</h1>
-<p>Pic about etcd</p>
-<pre><code>kubectl proxy</code></pre>
-<p>Then do ./RBAC/1x1/README.md</p>
-</div>
-<div id="interim-conclusion" class="slide section level1">
-<h1>interim conclusion</h1>
-<p>So it is about to access</p>
-<ul>
-<li>cluster-scoped objects</li>
-<li>namespaced objects</li>
-<li>non-resource endpoints exists, but we don’t care</li>
-</ul>
-<p>Where access means:</p>
-<p>Check for the verbs:</p>
-<pre><code>curl localhost:8001/api/v1</code></pre>
-<p>verbs:</p>
 <table>
-<tbody>
-<tr class="odd">
-<td>get</td>
-<td>list</td>
-<td>listcollection</td>
-</tr>
-<tr class="even">
-<td>patch</td>
-<td>update</td>
-<td>watch</td>
-</tr>
-<tr class="odd">
-<td>delete</td>
-<td>deletecollection</td>
-<td>create</td>
-</tr>
-</tbody>
-</table>
-<p>…</p>
-</div>
-<div id="have-a-look-into-clusterroles" class="slide section level1">
-<h1>Have a look into (Cluster)Roles</h1>
-<ul>
-<li>admin</li>
-<li>cluster-admin</li>
-<li>view</li>
-<li>system:coredns</li>
-</ul>
-</div>
-<div id="check-clusterrolebinding" class="slide section level1">
-<h1>Check (Cluster)RoleBinding</h1>
-<p>Basic idea bind (Cluster)Roles to identities/subjects</p>
-<table>
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
 <thead>
 <tr class="header">
-<th>subjects</th>
-<th>How to impersonate</th>
+<th align="left">verb</th>
+<th>simplified description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>User</td>
-<td>kubectl get pods –as –as-group team1</td>
+<td align="left">get</td>
+<td>get an object by name</td>
 </tr>
 <tr class="even">
-<td>Group</td>
-<td>kubectl get pods –as username</td>
+<td align="left">list</td>
+<td>get a list of all objects of a type</td>
 </tr>
 <tr class="odd">
-<td>Serviceaccount</td>
-<td>kubectl get pods –as system:servcieaccount:testing:test</td>
+<td align="left">patch</td>
+<td><code>kubectl patch ..</code></td>
+</tr>
+<tr class="even">
+<td align="left">update</td>
+<td>am I allowed to change an object</td>
+</tr>
+<tr class="odd">
+<td align="left">watch</td>
+<td><code>kubectl get pod -w</code></td>
+</tr>
+<tr class="even">
+<td align="left">delete</td>
+<td>delete an object</td>
+</tr>
+<tr class="odd">
+<td align="left">create</td>
+<td>guess what?</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div id="do-some-simple-stuff" class="slide section level1">
-<h1>Do some simple stuff</h1>
+<div id="rbac-1" class="slide section level1">
+<h1>RBAC</h1>
+<ul>
+<li>RoleBasedAccess</li>
+<li>AuthZ API-Server</li>
+<li>No ResourceQuotas/Limits/Security</li>
+<li>Think about etcd as a filesystem</li>
+<li>Think about RBAC as filepermissions</li>
+<li>Use something like Kyverno to decide based on the filecontent</li>
+</ul>
+</div>
+<div id="so" class="slide section level1">
+<h1>So</h1>
+<ul>
+<li>Please change into the directory
+<code>./k8sworkshop/RBAC/1x1/</code></li>
+<li>We are going to access the API-server using curl</li>
+<li>We also are going to get an idea about the fileystemlayou</li>
+</ul>
+</div>
+<div id="fingerübungen" class="slide section level1">
+<h1>Fingerübungen</h1>
+<p>Execute in a Terminal/Pane:</p>
+<pre><code>watch kubectl get pods</code></pre>
+<p>Execute in another Terminal/Pane:</p>
+<pre><code>kubectl proxy</code></pre>
+<p>In a third Terminal/Pane:</p>
+<pre><code># Verb: create
+curl -X POST localhost:8001/api/v1/namespaces/default/pods -H &#39;Content-Type: application/json&#39; -d @pod.json
+# Verb: list
+curl localhost:8001/api/v1/namespaces/default/pods
+# Verb: get
+curl localhost:8001/api/v1/namespaces/default/pods/rbacexample 
+# Verb: delete
+curl -X DELETE localhost:8001/api/v1/namespaces/default/pods/rbacexample </code></pre>
+</div>
+<div id="namespaced-objects" class="slide section level1">
+<h1>Namespaced Objects</h1>
+<p>We still need a way to Authorize/Restrict access to a specific
+<code>Namespace</code> (later)</p>
+<p>Please enjoy the fileystemlayout :)</p>
+<pre><code># kubectl get pods -A 
+curl localhost:8001/api/v1/pods 
+# kubectl get pods -n kube-system 
+curl localhost:8001/api/v1/namespaces/kube-system/pods
+# kubectl get  nodes # 
+curl localhost:8001/api/v1/nodes 
+# kubectl get sts -A
+curl localhost:8001/apis/apps/v1/statefulsets </code></pre>
+</div>
+<div id="fyi" class="slide section level1">
+<h1>FYI</h1>
+<p>Btw. if you want to find out about the (non)-namespaced resources
+known to your cluster:</p>
+<pre><code>kubectl api-resources -o wide --namespaced=true 
+kubectl api-resources -o wide --namespaced=false</code></pre>
+</div>
+<div id="roles-and-clusterroles" class="slide section level1">
+<h1>Roles and ClusterRoles</h1>
+<ul>
+<li><p>Yes there are objects to store RBAC-Privileges</p></li>
+<li><p>Roles are limitted to a Namespaces</p></li>
+<li><p>Clusterroles are not</p></li>
+<li><p>As a fact ClusterRoles are sufficient.</p></li>
+<li><p>Later we are going to limit them on a Namespace</p></li>
+</ul>
+</div>
+<div id="crd" class="slide section level1">
+<h1>CRD</h1>
+<p>Exerpt of <code>kubectl explain --recursive ClusterRoles</code></p>
+<pre><code>apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole  # or Role
+metadata:
+  name:
+rules &lt;[]PolicyRule&gt;
+  apiGroups   &lt;[]string&gt; #or nonResourceURLs     &lt;[]string&gt;
+  resources   &lt;[]string&gt;
+  verbs       &lt;[]string&gt; -required-</code></pre>
+</div>
+<div id="apigroups-resources-verbs" class="slide section level1">
+<h1>ApiGroups? Resources? Verbs?</h1>
+<ul>
+<li>We are doing an unpractical exercise</li>
+<li>At least something to learn</li>
+<li>Previeous we had <code>kubectl api-resources -o wide</code></li>
+</ul>
+<p>If you killed <code>kubectl proxy</code>, then start it again:</p>
+<pre><code>kubectl proxy</code></pre>
+<p>Check:</p>
+<pre><code>curl 127.0.0.1:8001/</code></pre>
+</div>
+<div id="nonresourceurls-vs.-apigroups" class="slide section level1">
+<h1>nonResourceURLs vs. apiGroups?</h1>
+<p>There are a bunch of nonResourceURLs</p>
+<ul>
+<li><p><code>/livez</code></p></li>
+<li><p><code>/readyz</code></p></li>
+<li><p><code>/healtz</code></p></li>
+<li><p>We don’t put any effort into nonResourceURLs</p></li>
+<li><p>Feel free to check</p></li>
+</ul>
+<pre><code>kubectl get clusterrole system:public-info-viewer -o yaml</code></pre>
+<p>Ther you get the <code>PolicyRule</code></p>
+<pre><code>rules:
+- nonResourceURLs:
+  - /healthz
+  - /livez
+  - /readyz
+  - /version
+  - /version/
+  verbs:
+  - get</code></pre>
+</div>
+<div id="apigroups" class="slide section level1">
+<h1>apiGroups</h1>
+<ul>
+<li><code>/api</code> core resources</li>
+<li><code>/apis</code> the other resources</li>
+</ul>
+</div>
+<div id="lets-check-api" class="slide section level1">
+<h1>Let’s check <code>/api</code></h1>
+<ul>
+<li>Looks like we’ve got only the <code>v1</code> apiGroup</li>
+</ul>
+<pre><code>curl http://localhost:8001/api</code></pre>
+<ul>
+<li>Check the output of all the <code>resources</code> and there
+<code>verbs</code> in that <code>apiGroup</code> v1</li>
+</ul>
+<pre><code>curl http://localhost:8001/api/v1</code></pre>
+</div>
+<div id="gamification" class="slide section level1">
+<h1>Gamification</h1>
+<pre><code>curl 127.0.0.1:8001/api/v1 2&gt;/dev/null | jq &#39;.resources[] | select(.name |contains(&quot;pods&quot;))| &quot;\(.name) =&gt; \(.verbs)&quot;</code></pre>
+</div>
+<div id="apis" class="slide section level1">
+<h1><code>/apis</code></h1>
+<ul>
+<li>Check all the apiGroups and resources under <code>/apis</code></li>
+<li>Hope you find the <code>verbs</code> also</li>
+</ul>
+</div>
+<div id="filling-the-crds" class="slide section level1">
+<h1>Filling the CRDs</h1>
+<p>Have a look at (you should understand it)</p>
+<pre><code>kubectl get clusterrole view -o yaml
+kubectl get clusterrole admin -o yaml
+kubectl get clusterrole system:coredns -o yaml</code></pre>
+<p>Or any ather</p>
+</div>
+<div id="wildcard" class="slide section level1">
+<h1>Wildcard</h1>
+<ul>
+<li>You can use ’*’ as wildcard.</li>
+<li>A wonderfull example:)</li>
+</ul>
+<pre><code>kubectl get clusterrole cluster-admin -o yaml </code></pre>
+</div>
+<div id="reminder" class="slide section level1">
+<h1>Reminder</h1>
+<ul>
+<li>We are still ignoring Roles</li>
+<li>Roles got the same syntax as ClusterRoles anyway</li>
+<li>Besides <code>metadata.namespace</code></li>
+</ul>
+</div>
+<div id="authn" class="slide section level1">
+<h1>AuthN</h1>
+<ul>
+<li>Who’s that …</li>
+<li>We are not talking about authentication</li>
+<li>But we need personas</li>
+</ul>
+<p>Authentication in K8s</p>
+<ul>
+<li>Certs (CN=Username/O=Gruppe/O=Gruppe)</li>
+<li>JWT-Tokens (Oauth/Webhooks)</li>
+</ul>
+<p>Wanna have a look at <code>ServiceAccounts</code>?</p>
+<pre><code>/var/run/secrets/kubernetes.io/serviceaccount/token</code></pre>
+</div>
+<div id="personas" class="slide section level1">
+<h1>Personas</h1>
+<p>In Kubernetes ‘you’ can identify as</p>
+<ul>
+<li>User</li>
+<li>Group</li>
+<li>ServiceAccounts</li>
+</ul>
+<!-- -->
+<ul>
+<li>Technically they don’t differ (regarding RBAC)</li>
+<li>We will see them again later</li>
+</ul>
+</div>
+<div id="clusterrolebinding" class="slide section level1">
+<h1>[Cluster]RoleBinding</h1>
+<ul>
+<li>We got ClusterRoles</li>
+<li>We got Personas</li>
+</ul>
+<p>All we do is to bind a ClusterRole to a Persona</p>
+<p>Please check:</p>
+<pre><code>./k8sworkshop/RBAC/clusterrolebinding-admin.yaml
+./k8sworkshop/RBAC/clusterroleServiceaccount.yaml</code></pre>
+</div>
+<div id="cluster-rolebinding" class="slide section level1">
+<h1>Cluster-RoleBinding</h1>
+<ul>
+<li><p>Rolebinding sets Privileges of a Persona in a single
+Namespace</p></li>
+<li><p>A ClusterRolebinding needs a ClusterRole to bind</p></li>
+<li><p>A RoleBinding can bind a Role or a ClusterRole?!</p></li>
+<li><p>WTF?! How do I Rolebind a ClusterRole?!</p></li>
+<li><ul>
+<li>Easy: You got the privileges of the ClusterRole in that Namespace
+only</li>
+</ul></li>
+<li><p>What ist about the non-namespaced Resources?</p></li>
+<li><ul>
+<li>The cluster-resources don’t fint into a Namespace and are
+dropped.</li>
+</ul></li>
+</ul>
+<p>This is the reason you are fine with ClusterRoles.</p>
+<pre><code>kubectel get roles -A
+kubectel get clusterroles</code></pre>
+<p>Mehr dazu in Authentifizierung</p>
+<p>–&gt;</p>
+</div>
+<div id="impersonation" class="slide section level1">
+<h1>Impersonation</h1>
+<ul>
+<li>As we don’t want to create other Users</li>
+<li>Let’s use impersonation of kubectl</li>
+<li>Also a nice way to debug user-stuff</li>
+</ul>
+<p>(<code>--as-group</code> braucht immer einen User
+(<code>--as</code>))</p>
+<pre><code>kubectl get pods                    # Using my Persona
+kubectl get pods --as erkan         # Impersonate User Erkan
+kubectl get pods --as default --as-group system:masters  # Group system:masters
+kubectl get pods --as system:serviceaccount:default:default  # ServiceAccount default in Namespace default</code></pre>
+<p>FYI:</p>
+<pre><code>system:serviceaccount:default:default 
+            \            \      \-&gt; name
+             \            \-&gt; Namespace
+              \ -&gt; It is a ServiceAccount
+</code></pre>
+</div>
+<div id="can-i" class="slide section level1">
+<h1><code>can-i</code></h1>
+<ul>
+<li>Dry-Run of Impersonation</li>
+</ul>
+<pre><code>kubectl auth can-i create  pods --as system:serviceaccount:default:default
+kubectl auth can-i create  pods --as erkan
+kubectl auth can-i create  pods --as-group sysadmins</code></pre>
+</div>
+<div id="so-some-examples" class="slide section level1">
+<h1>So some Examples</h1>
+<pre><code>kubectl apply  -f RBAC/clusterrolebinding-admin.yaml
+kubectl  --as erkan get nodes
+kubectl  --as allman get nodes</code></pre>
+<ul>
+<li>What is working?</li>
+<li>Why it is working?</li>
+</ul>
+</div>
+<div id="namespaceadmin" class="slide section level1">
+<h1>NamespaceAdmin</h1>
+<ul>
+<li>Wir machen den nicht existenten User <code>kunde</code> zum Admin
+des Namespaces <code>kundens</code></li>
+</ul>
+<pre><code>kubectl create ns kundens
+kubectl apply -n kundens -f RBAC/rolebinding-namespaceadmin.yaml
+kubectl -n default --as kunde get pods
+kubectl -n kundens --as kunde get pods</code></pre>
+</div>
+<div id="clusterrolle-erstellen" class="slide section level1">
+<h1>(Cluster)Rolle erstellen</h1>
 <p>Please have a look before you deploy it</p>
+<pre><code>kubectl apply -f RBAC/role-pods-list.yaml</code></pre>
 <pre><code>kubectl apply -f RBAC/hallo-ns-sa-rb.yaml</code></pre>
 <p>Question:</p>
 <p>But that was a ClusterRole. Is the User <code>hallo</code> now a
 super-user? 😱</p>
 </div>
-<div id="its-so-complicated" class="slide section level1">
-<h1>It’s so complicated</h1>
+<div id="some-plugins" class="slide section level1">
+<h1>Some Plugins</h1>
+<pre><code>kubectl krew install access-matrix
+kubectl access-matrix --verb get --as erkan -n default
+kubectl access-matrix  --sa kube-system:default -n default</code></pre>
+<!--
+# Passende kubectl plugins
+
+Welche Rollen hat er denn?
+
+~~~
+kubectl krew install rbac-lookup
+kubecl rbac-lookup erkan
+kubecl rbac-lookup kube-proxy
+~~~
+-->
+</div>
+<div id="passende-kubectl-plugins" class="slide section level1">
+<h1>Passende kubectl plugins</h1>
+<pre><code>kubectl krew install rbac-tool
+kubectl rbac-tool lookup coredns
+kubectl rbac-tool who-can delete nodes
+kubectl rbac-tool viz --outformat dot &amp;&amp; cat rbac.dot | dot -Tpng &gt; rbac.png  &amp;&amp; open rbac.png
+kubectl rbac-tool policy-rules -e &#39;^system:auth&#39;</code></pre>
+</div>
+<div id="extra" class="slide section level1">
+<h1>Extra</h1>
+<p>How to assimilate new Rules (i.e. from an Operator)?</p>
+<pre><code>aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      rbac.authorization.k8s.io/aggregate-to-admin: &quot;true&quot;</code></pre>
 <ul>
-<li>RBAC is no fun at all</li>
-<li>Let’s see some tips</li>
+<li>ClusterRoles using a matching Label are being importet</li>
 </ul>
-<pre><code>kubectl auth whoami</code></pre>
 </div>
-<div id="check-permissions" class="slide section level1">
-<h1>Check Permissions</h1>
-<pre><code>kubectl auth can-i get pods haha
-kubectl auth can-i --as aishe list pods
-kubectl auth can-i list svc --as system:serviceaccount:kube-system:coredns</code></pre>
+<div id="todo" class="slide section level1">
+<h1>TODO</h1>
+<p>Recourcename</p>
 </div>
-<div id="krew-..-rbac-view" class="slide section level1">
-<h1>Krew ./. rbac-view</h1>
+<div id="swagger" class="slide section level1">
+<h1>Swagger</h1>
 <ul>
-<li>Nice WebUI to see (Cluster)Roles</li>
-<li>Not “working” on the jumphost</li>
-<li>Because it binds to localhost</li>
+<li>Another way to access the API</li>
 </ul>
-<pre><code>kubectl krew install  rbac-view
-kubectl rbac-view</code></pre>
+<p>Swagger.json:</p>
+<pre><code>kubectl get --raw /openapi/v2 &gt;swagger.json</code></pre>
+<p>(Online)Editor or:</p>
+<pre><code>docker container run --rm -p 8080:8080\
+            -e SWAGGER_JSON=/swagger.json \
+            -v $(pwd)/swagger.json:/swagger.json \
+             swaggerapi/swagger-ui</code></pre>
 </div>
-<div id="krew-..-rbac-lookup" class="slide section level1">
-<h1>Krew ./. rbac-lookup</h1>
-<p>Easy way to find (Cluster)Roles (and the bindings)</p>
-<pre><code>kubectl krew install  rbac-lookup
-kubectl rbac-lookup --kind serviceaccount kamaji-controller-manager -o wide
-kubectl rbac-lookup --kind user  bob -o wide</code></pre>
+<div id="fin" class="slide section level1">
+<h1>Fin</h1>
 </div>
 <div id="network" class="slide section level1">
 <h1>Network</h1>
@@ -307,7 +500,7 @@ kubectl rbac-lookup --kind user  bob -o wide</code></pre>
 <ul>
 <li>One Network for all Pods</li>
 <li>Nothing special about Namespaces (Namespaces are just directories to
-organize objects (emember))</li>
+organize objects (remember))</li>
 </ul>
 </div>
 <div id="topologyawarness-of-services-aka-servicediscovery"
@@ -341,8 +534,8 @@ Aware Routing</a></li>
 <h1>Networkpolicies</h1>
 <p>What you need to understand:</p>
 <ul>
-<li>A namespaced object (why is that important?)</li>
-<li>Working with labels (like Service Discovery)</li>
+<li>Networkpolicies are namespaced object (why is that important?)</li>
+<li>Working with labels (like Service Discovery etc.)</li>
 </ul>
 <p>Draw it or it didn’t happen</p>
 <p>Questions:</p>
@@ -419,12 +612,25 @@ spec:
         matchLabels:
           app: www</code></pre>
 </div>
+<div id="namespaceselector" class="slide section level1">
+<h1>nameSpaceSelector</h1>
+<p>Why and where do they make sense?</p>
+<pre><code>spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name=netzname</code></pre>
+<p>Can I mix namespaceSelector and podSelector?</p>
+</div>
 <div id="lets-discuss" class="slide section level1">
 <h1>Let’s Discuss</h1>
 <ul>
-<li>Wildcards</li>
-<li>Empty Arrays</li>
-<li>Egress</li>
+<li><p>This is supposed to take some time!!!!</p></li>
+<li><p>Exercises could arise /</p></li>
+<li><p>Wildcards</p></li>
+<li><p>Empty Arrays</p></li>
+<li><p>Egress</p></li>
 </ul>
 </div>
 <div id="tools-to-debug-network" class="slide section level1">
@@ -486,7 +692,7 @@ href="https://github.com/k8spacket/k8spacket">k8spacket</a></p>
 </div>
 <div id="skipping" class="slide section level1">
 <h1>Skipping</h1>
-<p>I.e. Calico and Cilium offer additional</p>
+<p>I.e. Calico and Cilium offer additional CRDs …</p>
 </div>
 <div id="webhooks-and-operators" class="slide section level1">
 <h1>Webhooks and Operators</h1>
@@ -583,7 +789,7 @@ webhooks:
 </div>
 <div id="lets-register-nothing" class="slide section level1">
 <h1>Let’s register (nothing)</h1>
-<pre><code>kubectl apply -f webhookregistration.yaml
+<pre><code>kubectl apply -f Controller/webhookregistration.yaml
 kubectl create ns loeschen
 kubectl label ns loeschen k8scamp=spielen</code></pre>
 </div>
@@ -593,9 +799,11 @@ kubectl label ns loeschen k8scamp=spielen</code></pre>
 kubectl -n loeschen delete -f Pods/pod.yaml</code></pre>
 <p>In webhookregistration.yaml =&gt;
 <code>failurePolicy: Ignore</code></p>
-<p>and ~~~ kubectl apply -f webhookregistration.yaml ~~~</p>
+<p>and ~~~ kubectl apply -f Controller/webhookregistration.yaml ~~~</p>
 <p>Now let’s delete the Pod again:</p>
 <pre><code>kubectl -n loeschen delete -f Pods/pod.yaml</code></pre>
+<p>Set revert the settings again:</p>
+<pre><code>failurePolicy: Fail</code></pre>
 </div>
 <div id="but-lett-deploy-a-servic" class="slide section level1">
 <h1>But let’t deploy a servic</h1>
@@ -630,7 +838,7 @@ class="slide section level1">
 </div>
 <div id="webhook" class="slide section level1">
 <h1>Webhook</h1>
-<pre><code>kubectl apply -f webhook-deployment.yaml</code></pre>
+<pre><code>kubectl apply -f Controller/webhook-deployment.yaml</code></pre>
 <p>Pod-dance again:</p>
 <pre><code>kubectl -n loeschen apply -f Pods/pod.yaml
 kubectl -n loeschen delete -f Pods/pod.yaml</code></pre>
@@ -664,7 +872,7 @@ href="https://github.com/kubernetes-sigs/kubebuilder">Kubebuilder</a></li>
 <li><a href="https://operatorhub.io/">OperatorHub</a> &lt;– 🤷</li>
 </ul>
 </div>
-<div id="agenda-1" class="slide section level1">
+<div id="agenda" class="slide section level1">
 <h1>Agenda</h1>
 <ul>
 <li>Create a CRD</li>

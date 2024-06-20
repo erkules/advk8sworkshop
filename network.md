@@ -7,7 +7,7 @@
 # Overview
 
 * One Network for all Pods
-* Nothing special about Namespaces (Namespaces are just directories to organize objects (emember))
+* Nothing special about Namespaces (Namespaces are just directories to organize objects (remember))
 
 # Topologyawarness of Services aka ServiceDiscovery
 
@@ -41,8 +41,8 @@ Repeat the curl-command and make sure you always connect to a node-local Pod
 
 What you need to understand:
 
-* A namespaced object (why is that important?)
-* Working with labels (like Service Discovery)
+* Networkpolicies are  namespaced object (why is that important?)
+* Working with labels (like Service Discovery etc.)
 
 Draw it or it didn't happen
 
@@ -124,11 +124,33 @@ spec:
           app: www
 ~~~
 
+# nameSpaceSelector 
+
+Why and where do they make sense?
+
+~~~
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name=netzname
+~~~
+
+Can I mix namespaceSelector and podSelector?
+
+
+
 # Let's Discuss
+
+* This is supposed to take some time!!!!
+* Exercises could arise \o/
+
 
 * Wildcards 
 * Empty Arrays
 * Egress
+
 
 
 # Tools to debug Network
@@ -215,4 +237,4 @@ I.e. [k8spacket](https://github.com/k8spacket/k8spacket)
 
 # Skipping
 
-I.e. Calico and Cilium offer additional 
+I.e. Calico and Cilium offer additional CRDs ...

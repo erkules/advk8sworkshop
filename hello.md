@@ -1,7 +1,7 @@
 # K8sWorkshop
 
 * Not a basic workshop
-* Just to put attention on some topics
+* Still just to put attention on some topics
 
 # Me
 
