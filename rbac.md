@@ -358,8 +358,8 @@ Please check:
 This is the reason you are fine with ClusterRoles.
 
 ~~~
-kubectel get roles -A
-kubectel get clusterroles
+kubectl get roles -A
+kubectl get clusterroles
 ~~~
 
 
