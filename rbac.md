@@ -2,6 +2,18 @@
 
 Role Based Access Control
 
+
+# ETCD
+
+**filesystem-based key-value Store**
+
+* In the end this is were all is going to happens
+* Think about RBAC as filesystem privileges
+
+
+
+
+
 # What is it all about
 
 * Please remember it is about objects in etcd (database)
@@ -21,17 +33,17 @@ Role Based Access Control
 # RBAC
 
 * RoleBasedAccess
-* AuthZ API-Server
+* API-Server ==> AuthZ
 * No ResourceQuotas/Limits/Security
 * Think about etcd as a filesystem
 * Think about RBAC as filepermissions
-* Use something like Kyverno to decide based on the filecontent
+* Use something like Kyverno for decissions based on the filecontent
 
 # So
 
 * Please change into the directory `./k8sworkshop/RBAC/1x1/`
 * We are going to access the API-server using curl
-* We also are going to get an idea about the fileystemlayou
+* We also are going to get an idea about the fileystemlayout
 
 
 # Fingerübungen
@@ -48,16 +60,34 @@ Execute in another Terminal/Pane:
 kubectl proxy
 ~~~
 
-In a third Terminal/Pane:
+Swipe `--->`
+
+
+# Fingerübungen The Return
+
+In a third terminal/(tmux)pane:
+
+## Verb: create
 
 ~~~
-# Verb: create
 curl -X POST localhost:8001/api/v1/namespaces/default/pods -H 'Content-Type: application/json' -d @pod.json
-# Verb: list
+~~~
+
+## Verb: list
+
+~~~
 curl localhost:8001/api/v1/namespaces/default/pods
-# Verb: get
+~~~
+
+## Verb: get
+
+~~~
 curl localhost:8001/api/v1/namespaces/default/pods/rbacexample 
-# Verb: delete
+~~~
+
+## Verb: delete
+
+~~~
 curl -X DELETE localhost:8001/api/v1/namespaces/default/pods/rbacexample 
 ~~~
 
@@ -69,14 +99,27 @@ We still need a way to Authorize/Restrict access to a specific `Namespace` (late
 Please enjoy the fileystemlayout :)
 
 
+## kubectl get pods -A 
+
 ~~~
-# kubectl get pods -A 
 curl localhost:8001/api/v1/pods 
-# kubectl get pods -n kube-system 
+~~~
+
+## kubectl get pods -n kube-system 
+
+~~~
 curl localhost:8001/api/v1/namespaces/kube-system/pods
-# kubectl get  nodes # 
+~~~
+
+## kubectl get  nodes # 
+
+~~~
 curl localhost:8001/api/v1/nodes 
-# kubectl get sts -A
+~~~
+
+## kubectl get sts -A
+
+~~~
 curl localhost:8001/apis/apps/v1/statefulsets 
 ~~~
 
@@ -91,16 +134,16 @@ kubectl api-resources -o wide --namespaced=false
 
 # Roles and ClusterRoles
 
-* Yes there are objects to store RBAC-Privileges
-* Roles are limitted to a Namespaces
-* Clusterroles are not 
+* Yes there are objects to store RBAC-privileges 💃
+* Roles are limited to a Namespaces
+* ClusterRoles are not 
 
-* As a fact ClusterRoles are sufficient. 
+* As a fact ClusterRoles are sufficient (please remind me)
 * Later we are going to limit them on a Namespace
 
 # CRD
 
-Exerpt of `kubectl explain --recursive ClusterRoles`
+Excerpt of `kubectl explain --recursive ClusterRoles`
 
 ~~~
 apiVersion: rbac.authorization.k8s.io/v1
@@ -117,10 +160,10 @@ rules <[]PolicyRule>
 
 * We are doing an unpractical exercise
 * At least something to learn
-* Previeous we had `kubectl api-resources -o wide`
+* Previous we had `kubectl api-resources -o wide`
 
 
-If you killed `kubectl proxy`, then start it again:
+If you killed `kubectl proxy`, then start it again please:
 
 ~~~
 kubectl proxy
@@ -147,7 +190,7 @@ There are a bunch of nonResourceURLs
 kubectl get clusterrole system:public-info-viewer -o yaml
 ~~~
 
-Ther you get the `PolicyRule`
+There you get the `PolicyRule`
 
 ~~~
 rules:
@@ -184,13 +227,46 @@ curl http://localhost:8001/api/v1
 # Gamification
 
 ~~~
-curl 127.0.0.1:8001/api/v1 2>/dev/null | jq '.resources[] | select(.name |contains("pods"))| "\(.name) => \(.verbs)"
+curl 127.0.0.1:8001/api/v1 2>/dev/null | jq '.resources[] | select(.name |contains("pods"))| "\(.name) => \(.verbs)"'
 ~~~
 
 # `/apis`
 
 * Check all the apiGroups and resources under `/apis`
 * Hope you find the `verbs` also
+
+~~~
+curl 127.0.0.1:8001/apis
+~~~
+ 
+* Check for a apiVersion 
+* curl for that apiVersion
+* Check for the groupVersion
+* curl for the version (attached) or groupVersion in general
+
+# Just a little example
+
+~~~
+$ curl 127.0.0.1:8001/apis/external.metrics.k8s.io
+{
+  "kind": "APIGroup",
+  "apiVersion": "v1",
+  "name": "external.metrics.k8s.io",
+  "versions": [
+    {
+      "groupVersion": "external.metrics.k8s.io/v1beta1",
+      "version": "v1beta1"
+    }
+  ],
+  "preferredVersion": {
+    "groupVersion": "external.metrics.k8s.io/v1beta1",
+    "version": "v1beta1"
+  }
+~~~
+
+~~~
+curl 127.0.0.1:8001/apis/external.metrics.k8s.io/v1beta1
+~~~
 
 # Filling the CRDs
 
@@ -202,12 +278,12 @@ kubectl get clusterrole admin -o yaml
 kubectl get clusterrole system:coredns -o yaml
 ~~~
 
-Or any ather
+Or any other
 
 # Wildcard
 
-* You can use '*' as wildcard.
-* A wonderfull example:)
+* You can use `*` as wildcard.
+* A wonderful example:)
 
 ~~~
 kubectl get clusterrole cluster-admin -o yaml 
@@ -228,13 +304,17 @@ kubectl get clusterrole cluster-admin -o yaml
 Authentication in K8s
 
 * Certs  (CN=Username/O=Gruppe/O=Gruppe)
-* JWT-Tokens (Oauth/Webhooks)
+* JWT-Tokens (Oauth2/Webhooks)
 
 Wanna have a look at `ServiceAccounts`?
 
 ~~~
 /var/run/secrets/kubernetes.io/serviceaccount/token
 ~~~
+
+☝️☝️☝️☝️☝️☝️☝️☝️ used by our Operator :D☝️☝️☝️
+
+
 
 # Personas
 
@@ -283,18 +363,15 @@ kubectel get clusterroles
 ~~~
 
 
-Mehr dazu in Authentifizierung
-
--->
 
 # Impersonation
 
-* As we don't want to create other Users
-* Let's use impersonation of kubectl
+* As we don't want to create other users
+* Let's use impersonation of `kubectl`
 * Also a nice way to debug user-stuff
 
 
-(`--as-group` braucht immer einen User (`--as`))
+(`--as-group` works only when (`--as`) is set)
 
 ~~~
 kubectl get pods                    # Using my Persona
@@ -316,7 +393,7 @@ system:serviceaccount:default:default
 
 # `can-i`
 
-* Dry-Run of Impersonation 
+* dry-run of impersonation 
 
 ~~~
 kubectl auth can-i create  pods --as system:serviceaccount:default:default
@@ -338,7 +415,7 @@ kubectl  --as allman get nodes
 
 # NamespaceAdmin
 
-* Wir machen den nicht existenten User `kunde` zum Admin des Namespaces `kundens`
+* Let the user `kunde` be an admin of a Namespace
 
 ~~~
 kubectl create ns kundens
@@ -347,7 +424,7 @@ kubectl -n default --as kunde get pods
 kubectl -n kundens --as kunde get pods
 ~~~
 
-# (Cluster)Rolle erstellen
+# Creating (Cluster)Rolle 
 
 Please have a look before you deploy it
 
@@ -362,9 +439,15 @@ kubectl apply -f RBAC/hallo-ns-sa-rb.yaml
 
 Question:
 
-But that was a ClusterRole. Is the User `hallo` now a super-user? 😱
+But that was a ClusterRole?!!! 
 
+Is the User `hallo` now a super-user? 😱
 
+<!--
+# sudo TODO
+
+sudo mit impersonation (doofe idee aber trotzdem)
+-->
 
 
 # Some Plugins
@@ -410,12 +493,29 @@ aggregationRule:
 
 * ClusterRoles using a matching Label are being importet
 
+* So the ClusterRole cluster-admins doesn't need that (why?)
+* Check the admin ClusterRole
+* Find at least on aggregated ClusterRole for admin
 
 
 
-# TODO
 
-Recourcename
+# Recourcename
+
+A way to limit the privileges
+
+~~~
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: podulesk
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  resourceNames: ["podenlos", "podium"]
+  verbs: ["get", "list"]
+~~~
 
 # Swagger
 

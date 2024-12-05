@@ -1,15 +1,17 @@
 # K8sWorkshop
 
-* Not a basic workshop
-* Still just to put attention on some topics
+* Not being a basic workshop
+* It basically highlights some adv. topics
 
 # Me
 
 * Erkan Yanar
 * Dev*OPS*
-* Find me on LinkedIn(Xing)
-* linsernraum.de (There will be my homepage by 2024)
+* Find me on LinkedIn
+* http://linsenraum.de
 
-# You
+ <img src="./qr-code.png" width="50%" height="auto">
+
+# You?!
 
 

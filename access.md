@@ -15,7 +15,7 @@ git clone https://github.com/erkules/k8sworkshop.git
 cd k8sworkshop
 ~~~
 
-From now on alle commands are expected to be executed from the `k8sworkshop` directory
+`k8sworkshop` <-- working directory
 
 
 

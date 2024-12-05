@@ -6,8 +6,9 @@
 
 # Overview
 
-* One Network for all Pods
+* "One" Network for all Pods
 * Nothing special about Namespaces (Namespaces are just directories to organize objects (remember))
+* Still the Pods are all in the same flat network
 
 # Topologyawarness of Services aka ServiceDiscovery
 
@@ -51,7 +52,7 @@ Questions:
 
 * What does it means only to have namespaced Networkpolicies?
 
-# What do the NetworkPolicies look like?
+# What do NetworkPolicies look alike?
 
 
 ~~~
@@ -77,7 +78,7 @@ spec:
 
 # An example/exercise
 
-Deploy a Namespace (named netz) with three Deployments (with unique Labels) and their fitting services
+Deploy a Namespace (named `netz`) with three Deployments (with unique Labels) and their fitting services
 
 ~~~
 kubectl apply -f NetworkPolicies/basics.yaml
@@ -197,7 +198,7 @@ $ kubectl np-viewer -n netz -p rot-5bb7cb48cb-5sj5t
 +----------------+---------+-----------+-----------+---------------------+---------------+----------+--------+
 ~~~
 
-Nice start but only evaluates podSelector `:/`
+Nice start but only evaluates `podSelector` `:/`
 
 ~~~
 $ kubectl np-viewer -n netz -p blau-54d9867779-82f4k
@@ -238,3 +239,5 @@ I.e. [k8spacket](https://github.com/k8spacket/k8spacket)
 # Skipping
 
 I.e. Calico and Cilium offer additional CRDs ...
+
+# fin

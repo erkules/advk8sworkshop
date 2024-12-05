@@ -17,6 +17,7 @@ Are there slides?
 * Not the focus
 * Write it together:
 * https://zwerk.org/hedgedoc/away
+
 Export the hedgedoc and excalidraw at the end of the day
 
 

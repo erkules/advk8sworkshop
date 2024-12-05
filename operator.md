@@ -119,6 +119,7 @@ kubectl -n loeschen delete -f Pods/pod.yaml
 In webhookregistration.yaml =>  `failurePolicy: Ignore`
 
 and
+
 ~~~
 kubectl apply -f Controller/webhookregistration.yaml
 ~~~
@@ -129,13 +130,13 @@ Now let's delete the Pod again:
 kubectl -n loeschen delete -f Pods/pod.yaml
 ~~~
 
-Set revert the settings again:
+Revert the settings again:
 
 ~~~
 failurePolicy: Fail
 ~~~
 
-# But let't deploy a servic
+# But let't deploy a service
 
 This is an  AdmissionReview:
 
@@ -295,6 +296,7 @@ Have a look into:
 myoperator.yaml
 ~~~
 
+Repeat RBAC and Serviceaccounts
 
 # Verstanden?
 
@@ -306,11 +308,20 @@ kubectl apply -f myoperator.yaml
 * Attention: script needs to be started manually
 * Check for AdmissionReview
 
+# Simpler
 
+Check for:
 
+~~~
+kubectl-operator-interactive.yaml
+~~~
 
-# Examples
+Yes `kubectl` inside a Pod takes care about certs and tokens <3
 
-Directory: ./Operators/Percona 
+# Examples?
+
+Directory: ./Operators
 
 Check the README.md for installing the PerconaOperator
+
+# Fin

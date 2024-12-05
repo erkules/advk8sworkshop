@@ -10,10 +10,18 @@
   <style type="text/css">
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" type="text/css" media="screen, projection, print"
@@ -43,9 +51,9 @@
 <ul>
 <li>Not the focus</li>
 <li>Write it together:</li>
-<li>https://zwerk.org/hedgedoc/away Export the hedgedoc and excalidraw
-at the end of the day</li>
+<li>https://zwerk.org/hedgedoc/away</li>
 </ul>
+<p>Export the hedgedoc and excalidraw at the end of the day</p>
 <!--
 * * https://s.42l.fr/2M3yenoy
 -->
@@ -53,8 +61,8 @@ at the end of the day</li>
 <div id="k8sworkshop" class="slide section level1">
 <h1>K8sWorkshop</h1>
 <ul>
-<li>Not a basic workshop</li>
-<li>Still just to put attention on some topics</li>
+<li>Not being a basic workshop</li>
+<li>It basically highlights some adv. topics</li>
 </ul>
 </div>
 <div id="me" class="slide section level1">
@@ -62,12 +70,13 @@ at the end of the day</li>
 <ul>
 <li>Erkan Yanar</li>
 <li>Dev<em>OPS</em></li>
-<li>Find me on LinkedIn(Xing)</li>
-<li>linsernraum.de (There will be my homepage by 2024)</li>
+<li>Find me on LinkedIn</li>
+<li>http://linsenraum.de</li>
 </ul>
+<p><img src="./qr-code.png" width="50%" height="auto"></p>
 </div>
 <div id="you" class="slide section level1">
-<h1>You</h1>
+<h1>You?!</h1>
 </div>
 <div id="accessing-the-cluster" class="slide section level1">
 <h1>Accessing the Cluster</h1>
@@ -87,12 +96,19 @@ at the end of the day</li>
 <p>All the examples are in a gitrepository so:</p>
 <pre><code>git clone https://github.com/erkules/k8sworkshop.git
 cd k8sworkshop</code></pre>
-<p>From now on alle commands are expected to be executed from the
-<code>k8sworkshop</code> directory</p>
+<p><code>k8sworkshop</code> &lt;– working directory</p>
 </div>
 <div id="rbac" class="slide section level1">
 <h1>RBAC</h1>
 <p>Role Based Access Control</p>
+</div>
+<div id="etcd" class="slide section level1">
+<h1>ETCD</h1>
+<p><strong>filesystem-based key-value Store</strong></p>
+<ul>
+<li>In the end this is were all is going to happens</li>
+<li>Think about RBAC as filesystem privileges</li>
+</ul>
 </div>
 <div id="what-is-it-all-about" class="slide section level1">
 <h1>What is it all about</h1>
@@ -145,11 +161,12 @@ specific object</li>
 <h1>RBAC</h1>
 <ul>
 <li>RoleBasedAccess</li>
-<li>AuthZ API-Server</li>
+<li>API-Server ==&gt; AuthZ</li>
 <li>No ResourceQuotas/Limits/Security</li>
 <li>Think about etcd as a filesystem</li>
 <li>Think about RBAC as filepermissions</li>
-<li>Use something like Kyverno to decide based on the filecontent</li>
+<li>Use something like Kyverno for decissions based on the
+filecontent</li>
 </ul>
 </div>
 <div id="so" class="slide section level1">
@@ -158,7 +175,7 @@ specific object</li>
 <li>Please change into the directory
 <code>./k8sworkshop/RBAC/1x1/</code></li>
 <li>We are going to access the API-server using curl</li>
-<li>We also are going to get an idea about the fileystemlayou</li>
+<li>We also are going to get an idea about the fileystemlayout</li>
 </ul>
 </div>
 <div id="fingerübungen" class="slide section level1">
@@ -167,29 +184,34 @@ specific object</li>
 <pre><code>watch kubectl get pods</code></pre>
 <p>Execute in another Terminal/Pane:</p>
 <pre><code>kubectl proxy</code></pre>
-<p>In a third Terminal/Pane:</p>
-<pre><code># Verb: create
-curl -X POST localhost:8001/api/v1/namespaces/default/pods -H &#39;Content-Type: application/json&#39; -d @pod.json
-# Verb: list
-curl localhost:8001/api/v1/namespaces/default/pods
-# Verb: get
-curl localhost:8001/api/v1/namespaces/default/pods/rbacexample 
-# Verb: delete
-curl -X DELETE localhost:8001/api/v1/namespaces/default/pods/rbacexample </code></pre>
+<p>Swipe <code>---&gt;</code></p>
+</div>
+<div id="fingerübungen-the-return" class="slide section level1">
+<h1>Fingerübungen The Return</h1>
+<p>In a third terminal/(tmux)pane:</p>
+<h2 id="verb-create">Verb: create</h2>
+<pre><code>curl -X POST localhost:8001/api/v1/namespaces/default/pods -H &#39;Content-Type: application/json&#39; -d @pod.json</code></pre>
+<h2 id="verb-list">Verb: list</h2>
+<pre><code>curl localhost:8001/api/v1/namespaces/default/pods</code></pre>
+<h2 id="verb-get">Verb: get</h2>
+<pre><code>curl localhost:8001/api/v1/namespaces/default/pods/rbacexample </code></pre>
+<h2 id="verb-delete">Verb: delete</h2>
+<pre><code>curl -X DELETE localhost:8001/api/v1/namespaces/default/pods/rbacexample </code></pre>
 </div>
 <div id="namespaced-objects" class="slide section level1">
 <h1>Namespaced Objects</h1>
 <p>We still need a way to Authorize/Restrict access to a specific
 <code>Namespace</code> (later)</p>
 <p>Please enjoy the fileystemlayout :)</p>
-<pre><code># kubectl get pods -A 
-curl localhost:8001/api/v1/pods 
-# kubectl get pods -n kube-system 
-curl localhost:8001/api/v1/namespaces/kube-system/pods
-# kubectl get  nodes # 
-curl localhost:8001/api/v1/nodes 
-# kubectl get sts -A
-curl localhost:8001/apis/apps/v1/statefulsets </code></pre>
+<h2 id="kubectl-get-pods--a">kubectl get pods -A</h2>
+<pre><code>curl localhost:8001/api/v1/pods </code></pre>
+<h2 id="kubectl-get-pods--n-kube-system">kubectl get pods -n
+kube-system</h2>
+<pre><code>curl localhost:8001/api/v1/namespaces/kube-system/pods</code></pre>
+<h2 id="kubectl-get-nodes">kubectl get nodes</h2>
+<pre><code>curl localhost:8001/api/v1/nodes </code></pre>
+<h2 id="kubectl-get-sts--a">kubectl get sts -A</h2>
+<pre><code>curl localhost:8001/apis/apps/v1/statefulsets </code></pre>
 </div>
 <div id="fyi" class="slide section level1">
 <h1>FYI</h1>
@@ -201,16 +223,16 @@ kubectl api-resources -o wide --namespaced=false</code></pre>
 <div id="roles-and-clusterroles" class="slide section level1">
 <h1>Roles and ClusterRoles</h1>
 <ul>
-<li><p>Yes there are objects to store RBAC-Privileges</p></li>
-<li><p>Roles are limitted to a Namespaces</p></li>
-<li><p>Clusterroles are not</p></li>
-<li><p>As a fact ClusterRoles are sufficient.</p></li>
+<li><p>Yes there are objects to store RBAC-privileges 💃</p></li>
+<li><p>Roles are limited to a Namespaces</p></li>
+<li><p>ClusterRoles are not</p></li>
+<li><p>As a fact ClusterRoles are sufficient (please remind me)</p></li>
 <li><p>Later we are going to limit them on a Namespace</p></li>
 </ul>
 </div>
 <div id="crd" class="slide section level1">
 <h1>CRD</h1>
-<p>Exerpt of <code>kubectl explain --recursive ClusterRoles</code></p>
+<p>Excerpt of <code>kubectl explain --recursive ClusterRoles</code></p>
 <pre><code>apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole  # or Role
 metadata:
@@ -225,9 +247,10 @@ rules &lt;[]PolicyRule&gt;
 <ul>
 <li>We are doing an unpractical exercise</li>
 <li>At least something to learn</li>
-<li>Previeous we had <code>kubectl api-resources -o wide</code></li>
+<li>Previous we had <code>kubectl api-resources -o wide</code></li>
 </ul>
-<p>If you killed <code>kubectl proxy</code>, then start it again:</p>
+<p>If you killed <code>kubectl proxy</code>, then start it again
+please:</p>
 <pre><code>kubectl proxy</code></pre>
 <p>Check:</p>
 <pre><code>curl 127.0.0.1:8001/</code></pre>
@@ -243,7 +266,7 @@ rules &lt;[]PolicyRule&gt;
 <li><p>Feel free to check</p></li>
 </ul>
 <pre><code>kubectl get clusterrole system:public-info-viewer -o yaml</code></pre>
-<p>Ther you get the <code>PolicyRule</code></p>
+<p>There you get the <code>PolicyRule</code></p>
 <pre><code>rules:
 - nonResourceURLs:
   - /healthz
@@ -275,7 +298,7 @@ rules &lt;[]PolicyRule&gt;
 </div>
 <div id="gamification" class="slide section level1">
 <h1>Gamification</h1>
-<pre><code>curl 127.0.0.1:8001/api/v1 2&gt;/dev/null | jq &#39;.resources[] | select(.name |contains(&quot;pods&quot;))| &quot;\(.name) =&gt; \(.verbs)&quot;</code></pre>
+<pre><code>curl 127.0.0.1:8001/api/v1 2&gt;/dev/null | jq &#39;.resources[] | select(.name |contains(&quot;pods&quot;))| &quot;\(.name) =&gt; \(.verbs)&quot;&#39;</code></pre>
 </div>
 <div id="apis" class="slide section level1">
 <h1><code>/apis</code></h1>
@@ -283,6 +306,32 @@ rules &lt;[]PolicyRule&gt;
 <li>Check all the apiGroups and resources under <code>/apis</code></li>
 <li>Hope you find the <code>verbs</code> also</li>
 </ul>
+<pre><code>curl 127.0.0.1:8001/apis</code></pre>
+<ul>
+<li>Check for a apiVersion</li>
+<li>curl for that apiVersion</li>
+<li>Check for the groupVersion</li>
+<li>curl for the version (attached) or groupVersion in general</li>
+</ul>
+</div>
+<div id="just-a-little-example" class="slide section level1">
+<h1>Just a little example</h1>
+<pre><code>$ curl 127.0.0.1:8001/apis/external.metrics.k8s.io
+{
+  &quot;kind&quot;: &quot;APIGroup&quot;,
+  &quot;apiVersion&quot;: &quot;v1&quot;,
+  &quot;name&quot;: &quot;external.metrics.k8s.io&quot;,
+  &quot;versions&quot;: [
+    {
+      &quot;groupVersion&quot;: &quot;external.metrics.k8s.io/v1beta1&quot;,
+      &quot;version&quot;: &quot;v1beta1&quot;
+    }
+  ],
+  &quot;preferredVersion&quot;: {
+    &quot;groupVersion&quot;: &quot;external.metrics.k8s.io/v1beta1&quot;,
+    &quot;version&quot;: &quot;v1beta1&quot;
+  }</code></pre>
+<pre><code>curl 127.0.0.1:8001/apis/external.metrics.k8s.io/v1beta1</code></pre>
 </div>
 <div id="filling-the-crds" class="slide section level1">
 <h1>Filling the CRDs</h1>
@@ -290,13 +339,13 @@ rules &lt;[]PolicyRule&gt;
 <pre><code>kubectl get clusterrole view -o yaml
 kubectl get clusterrole admin -o yaml
 kubectl get clusterrole system:coredns -o yaml</code></pre>
-<p>Or any ather</p>
+<p>Or any other</p>
 </div>
 <div id="wildcard" class="slide section level1">
 <h1>Wildcard</h1>
 <ul>
-<li>You can use ’*’ as wildcard.</li>
-<li>A wonderfull example:)</li>
+<li>You can use <code>*</code> as wildcard.</li>
+<li>A wonderful example:)</li>
 </ul>
 <pre><code>kubectl get clusterrole cluster-admin -o yaml </code></pre>
 </div>
@@ -318,10 +367,11 @@ kubectl get clusterrole system:coredns -o yaml</code></pre>
 <p>Authentication in K8s</p>
 <ul>
 <li>Certs (CN=Username/O=Gruppe/O=Gruppe)</li>
-<li>JWT-Tokens (Oauth/Webhooks)</li>
+<li>JWT-Tokens (Oauth2/Webhooks)</li>
 </ul>
 <p>Wanna have a look at <code>ServiceAccounts</code>?</p>
 <pre><code>/var/run/secrets/kubernetes.io/serviceaccount/token</code></pre>
+<p>☝️☝️☝️☝️☝️☝️☝️☝️ used by our Operator :D☝️☝️☝️</p>
 </div>
 <div id="personas" class="slide section level1">
 <h1>Personas</h1>
@@ -369,18 +419,16 @@ dropped.</li>
 <p>This is the reason you are fine with ClusterRoles.</p>
 <pre><code>kubectel get roles -A
 kubectel get clusterroles</code></pre>
-<p>Mehr dazu in Authentifizierung</p>
-<p>–&gt;</p>
 </div>
 <div id="impersonation" class="slide section level1">
 <h1>Impersonation</h1>
 <ul>
-<li>As we don’t want to create other Users</li>
-<li>Let’s use impersonation of kubectl</li>
+<li>As we don’t want to create other users</li>
+<li>Let’s use impersonation of <code>kubectl</code></li>
 <li>Also a nice way to debug user-stuff</li>
 </ul>
-<p>(<code>--as-group</code> braucht immer einen User
-(<code>--as</code>))</p>
+<p>(<code>--as-group</code> works only when (<code>--as</code>) is
+set)</p>
 <pre><code>kubectl get pods                    # Using my Persona
 kubectl get pods --as erkan         # Impersonate User Erkan
 kubectl get pods --as default --as-group system:masters  # Group system:masters
@@ -395,7 +443,7 @@ kubectl get pods --as system:serviceaccount:default:default  # ServiceAccount de
 <div id="can-i" class="slide section level1">
 <h1><code>can-i</code></h1>
 <ul>
-<li>Dry-Run of Impersonation</li>
+<li>dry-run of impersonation</li>
 </ul>
 <pre><code>kubectl auth can-i create  pods --as system:serviceaccount:default:default
 kubectl auth can-i create  pods --as erkan
@@ -414,22 +462,26 @@ kubectl  --as allman get nodes</code></pre>
 <div id="namespaceadmin" class="slide section level1">
 <h1>NamespaceAdmin</h1>
 <ul>
-<li>Wir machen den nicht existenten User <code>kunde</code> zum Admin
-des Namespaces <code>kundens</code></li>
+<li>Let the user <code>kunde</code> be an admin of a Namespace</li>
 </ul>
 <pre><code>kubectl create ns kundens
 kubectl apply -n kundens -f RBAC/rolebinding-namespaceadmin.yaml
 kubectl -n default --as kunde get pods
 kubectl -n kundens --as kunde get pods</code></pre>
 </div>
-<div id="clusterrolle-erstellen" class="slide section level1">
-<h1>(Cluster)Rolle erstellen</h1>
+<div id="creating-clusterrolle" class="slide section level1">
+<h1>Creating (Cluster)Rolle</h1>
 <p>Please have a look before you deploy it</p>
 <pre><code>kubectl apply -f RBAC/role-pods-list.yaml</code></pre>
 <pre><code>kubectl apply -f RBAC/hallo-ns-sa-rb.yaml</code></pre>
 <p>Question:</p>
-<p>But that was a ClusterRole. Is the User <code>hallo</code> now a
-super-user? 😱</p>
+<p>But that was a ClusterRole?!!!</p>
+<p>Is the User <code>hallo</code> now a super-user? 😱</p>
+<!--
+# sudo TODO
+
+sudo mit impersonation (doofe idee aber trotzdem)
+-->
 </div>
 <div id="some-plugins" class="slide section level1">
 <h1>Some Plugins</h1>
@@ -464,12 +516,26 @@ kubectl rbac-tool policy-rules -e &#39;^system:auth&#39;</code></pre>
   - matchLabels:
       rbac.authorization.k8s.io/aggregate-to-admin: &quot;true&quot;</code></pre>
 <ul>
-<li>ClusterRoles using a matching Label are being importet</li>
+<li><p>ClusterRoles using a matching Label are being importet</p></li>
+<li><p>So the ClusterRole cluster-admins doesn’t need that
+(why?)</p></li>
+<li><p>Check the admin ClusterRole</p></li>
+<li><p>Find at least on aggregated ClusterRole for admin</p></li>
 </ul>
 </div>
-<div id="todo" class="slide section level1">
-<h1>TODO</h1>
-<p>Recourcename</p>
+<div id="recourcename" class="slide section level1">
+<h1>Recourcename</h1>
+<p>A way to limit the privileges</p>
+<pre><code>apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: podulesk
+rules:
+- apiGroups: [&quot;&quot;]
+  resources: [&quot;pods&quot;]
+  resourceNames: [&quot;podenlos&quot;, &quot;podium&quot;]
+  verbs: [&quot;get&quot;, &quot;list&quot;]</code></pre>
 </div>
 <div id="swagger" class="slide section level1">
 <h1>Swagger</h1>
@@ -498,9 +564,10 @@ kubectl rbac-tool policy-rules -e &#39;^system:auth&#39;</code></pre>
 <div id="overview" class="slide section level1">
 <h1>Overview</h1>
 <ul>
-<li>One Network for all Pods</li>
+<li>“One” Network for all Pods</li>
 <li>Nothing special about Namespaces (Namespaces are just directories to
 organize objects (remember))</li>
+<li>Still the Pods are all in the same flat network</li>
 </ul>
 </div>
 <div id="topologyawarness-of-services-aka-servicediscovery"
@@ -543,9 +610,9 @@ Aware Routing</a></li>
 <li>What does it means only to have namespaced Networkpolicies?</li>
 </ul>
 </div>
-<div id="what-do-the-networkpolicies-look-like"
+<div id="what-do-networkpolicies-look-alike"
 class="slide section level1">
-<h1>What do the NetworkPolicies look like?</h1>
+<h1>What do NetworkPolicies look alike?</h1>
 <pre><code>apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -567,8 +634,8 @@ spec:
 </div>
 <div id="an-exampleexercise" class="slide section level1">
 <h1>An example/exercise</h1>
-<p>Deploy a Namespace (named netz) with three Deployments (with unique
-Labels) and their fitting services</p>
+<p>Deploy a Namespace (named <code>netz</code>) with three Deployments
+(with unique Labels) and their fitting services</p>
 <pre><code>kubectl apply -f NetworkPolicies/basics.yaml
 kubectl -n netz get deploy,svc,pod -o wide --show-labels </code></pre>
 <p>Please:</p>
@@ -669,7 +736,8 @@ href="https://github.com/runoncloud/kubectl-np-viewer">np-viewer</a></li>
 +----------------+---------+-----------+-----------+---------------------+---------------+----------+--------+
 |     tored      | Ingress |   netz    | farbe=rot |        netz         |  farbe=blau   |    *     | TCP:80 |
 +----------------+---------+-----------+-----------+---------------------+---------------+----------+--------+</code></pre>
-<p>Nice start but only evaluates podSelector <code>:/</code></p>
+<p>Nice start but only evaluates <code>podSelector</code>
+<code>:/</code></p>
 <pre><code>$ kubectl np-viewer -n netz -p blau-54d9867779-82f4k
 
 No network policy was found</code></pre>
@@ -693,6 +761,9 @@ href="https://github.com/k8spacket/k8spacket">k8spacket</a></p>
 <div id="skipping" class="slide section level1">
 <h1>Skipping</h1>
 <p>I.e. Calico and Cilium offer additional CRDs …</p>
+</div>
+<div id="fin-1" class="slide section level1">
+<h1>fin</h1>
 </div>
 <div id="webhooks-and-operators" class="slide section level1">
 <h1>Webhooks and Operators</h1>
@@ -799,14 +870,15 @@ kubectl label ns loeschen k8scamp=spielen</code></pre>
 kubectl -n loeschen delete -f Pods/pod.yaml</code></pre>
 <p>In webhookregistration.yaml =&gt;
 <code>failurePolicy: Ignore</code></p>
-<p>and ~~~ kubectl apply -f Controller/webhookregistration.yaml ~~~</p>
+<p>and</p>
+<pre><code>kubectl apply -f Controller/webhookregistration.yaml</code></pre>
 <p>Now let’s delete the Pod again:</p>
 <pre><code>kubectl -n loeschen delete -f Pods/pod.yaml</code></pre>
-<p>Set revert the settings again:</p>
+<p>Revert the settings again:</p>
 <pre><code>failurePolicy: Fail</code></pre>
 </div>
-<div id="but-lett-deploy-a-servic" class="slide section level1">
-<h1>But let’t deploy a servic</h1>
+<div id="but-lett-deploy-a-service" class="slide section level1">
+<h1>But let’t deploy a service</h1>
 <p>This is an AdmissionReview:</p>
 <pre><code>{
   &quot;apiVersion&quot;: &quot;admission.k8s.io/v1&quot;,
@@ -929,6 +1001,7 @@ kubectl exec -ti kubectl -- sh </code></pre>
 <h1>Also Simple Example</h1>
 <p>Have a look into:</p>
 <pre><code>myoperator.yaml</code></pre>
+<p>Repeat RBAC and Serviceaccounts</p>
 </div>
 <div id="verstanden" class="slide section level1">
 <h1>Verstanden?</h1>
@@ -938,10 +1011,20 @@ kubectl exec -ti kubectl -- sh </code></pre>
 <li>Check for AdmissionReview</li>
 </ul>
 </div>
+<div id="simpler" class="slide section level1">
+<h1>Simpler</h1>
+<p>Check for:</p>
+<pre><code>kubectl-operator-interactive.yaml</code></pre>
+<p>Yes <code>kubectl</code> inside a Pod takes care about certs and
+tokens &lt;3</p>
+</div>
 <div id="examples" class="slide section level1">
-<h1>Examples</h1>
-<p>Directory: ./Operators/Percona</p>
+<h1>Examples?</h1>
+<p>Directory: ./Operators</p>
 <p>Check the README.md for installing the PerconaOperator</p>
+</div>
+<div id="fin-2" class="slide section level1">
+<h1>Fin</h1>
 </div>
 </body>
 </html>
